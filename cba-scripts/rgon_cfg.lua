@@ -208,6 +208,19 @@ ImGui.AddButton("CBADebuggingWindow", "CBADebuggingToMegaSatanButton", "TP to Me
 		ImGui.Hide()
 end, false)
 
+ImGui.AddButton("CBADebuggingWindow", "CBADebuggingToSirenButton", "TP to Siren",
+    function()
+        Isaac.ExecuteCommand("stage 5c")
+		if Game():GetDebugFlags() & DebugFlag.INFINITE_HP == 0 then
+			Isaac.ExecuteCommand("debug 3")
+		end
+		Isaac.ExecuteCommand("g c118")
+		Isaac.ExecuteCommand("g soy milk")
+		Isaac.ExecuteCommand("goto s.boss.5370")
+		Isaac.GetPlayer().Damage = 1000
+		ImGui.Hide()
+end, false)
+
 ImGui.AddButton("CBADebuggingWindow", "CBADebuggingToSkinlessHushButton", "TP to Skinless Hush",
     function()
         cba.Save.Config["SkinlessHush"]["IsSkinlessWomb"] = true
