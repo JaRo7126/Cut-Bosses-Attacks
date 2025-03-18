@@ -1,0 +1,6 @@
+<music root="music/">
+	<track name="Skinless Womb" path="Skinless Womb.ogg" loop="true" mul="1.25"/>
+	<track name="Skinless Hush" intro="Skinless Hush intro.ogg" path="Skinless Hush loop.ogg" loop="true"/>
+	<track name="Witness Boss" intro="Witness intro.ogg" path="Witness.ogg" loop="true" mul="1.25"/>
+	<track name="Witness Boss Over" path="Witness over.ogg" loop="false" mul="1.25"/>
+</music>
