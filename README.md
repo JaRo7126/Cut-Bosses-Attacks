@@ -19,9 +19,9 @@ The Witness' 3'rd cut phase
 Other cut behavior that I don't know about
 
 # ❤️SPECIAL THANKS FOR TESTING AND IDEAS❤️
-[Crabby](url=https://steamcommunity.com/profiles/76561198284851500/)
-[Sunday](url=https://steamcommunity.com/profiles/76561198990841712/)
-[shrkiツ](url=https://steamcommunity.com/id/SharkyTheShark19/)
+[Crabby](https://steamcommunity.com/profiles/76561198284851500/)
+[Sunday](https://steamcommunity.com/profiles/76561198990841712/)
+[shrkiツ](https://steamcommunity.com/id/SharkyTheShark19/)
 Joffe
 
 And also.... ***CHESS BATTLE ADVANCED***
