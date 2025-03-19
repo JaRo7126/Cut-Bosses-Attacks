@@ -271,7 +271,7 @@ function cba:MegaSatanMSsUpdate(MS)
 							
 							local fire = Isaac.Spawn(EntityType.ENTITY_PROJECTILE, ProjectileVariant.PROJECTILE_FIRE, 0, MS.Position, velocity, MS):ToProjectile()
 							fire:ClearProjectileFlags(ProjectileFlags.HIT_ENEMIES)
-							cba.GetData(fire).MS_circle_curve_dir = MS:GetSprite():GetFrame() / 6 - 5
+							cba.GetData(fire).MS_circle_curve_dir = MS:GetSprite():GetFrame() == 30 and 1 or -1
 							cba.GetData(fire).MS_circle_center = MS.Position
 							cba.GetData(fire).MS_circle_curve_speed = 2.5
 							cba.GetData(fire).MS_handfire = true
@@ -372,7 +372,9 @@ end
 cba:AddCallback(ModCallbacks.MC_NPC_UPDATE, cba.MegaSatanMSsUpdate, EntityType.ENTITY_MEGA_SATAN_2)
 
 cba:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, function(_, fire)
-	if cba.GetData(fire).MS_handfire then 
+	local data = cba.GetData(fire)
+	
+	if data.MS_handfire then 
 	
 		if fire.SpawnerEntity 
 		and fire.SpawnerEntity.Parent 
@@ -389,10 +391,11 @@ cba:AddCallback(ModCallbacks.MC_POST_PROJECTILE_UPDATE, function(_, fire)
 	end
 	
 	if data.MS_circle_curve_dir then
-		posOffset = Vector(2.5, 0):Rotated((Proj.Position - data.MS_circle_center):GetAngleDegrees())
-		targetPos = (Proj.Position + posOffset - data.MS_circle_center):Rotated(data.MS_circle_curve_dir * 1) + data.MS_circle_center
-		Proj.Velocity = (targetPos - Proj.Position) * data.MS_circle_curve_speed
+		posOffset = Vector(2.5, 0):Rotated((fire.Position - data.MS_circle_center):GetAngleDegrees())
+		targetPos = (fire.Position + posOffset - data.MS_circle_center):Rotated(data.MS_circle_curve_dir * 1) + data.MS_circle_center
+		fire.Velocity = (targetPos - fire.Position) * data.MS_circle_curve_speed
 	end
+	
 end, ProjectileVariant.PROJECTILE_FIRE)
 
 cba:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, function(_, entity, dmg, dmgflags, source)
