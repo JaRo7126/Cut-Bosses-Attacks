@@ -107,7 +107,7 @@ cba.Save.Config["Dogma"] = { --Dogma settings
 
 cba.Save.Config["MS2"] = { --Mega Satan settings
 	["AttackChance"] = 33,
-	["MSsHP"] = 600
+	["HandsHP"] = 600
 }
 
 cba.Save.Config["Mom"] = {
@@ -181,7 +181,7 @@ cba.Save.DefaultConfig["Dogma"] = { --Dogma settings
 
 cba.Save.DefaultConfig["MS2"] = { --Mega Satan settings
 	["AttackChance"] = 33,
-	["MSsHP"] = 600
+	["HandsHP"] = 600
 }
 
 cba.Save.DefaultConfig["Mom"] = {

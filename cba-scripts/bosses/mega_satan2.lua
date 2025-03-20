@@ -32,8 +32,8 @@ function cba:MegaSatanMSsUpdate(MS)
 					hand:GetSprite():ReplaceSpritesheet(0, i == 1 and rhandgfx or lhandgfx, true)
 					
 					hand.State = 3 --reset state
-					hand.MaxHitPoints = cfg["MS2"]["MSsHP"] --set HP
-					hand.HitPoints = cfg["MS2"]["MSsHP"]
+					hand.MaxHitPoints = cfg["MS2"]["HandsHP"] --set HP
+					hand.HitPoints = cfg["MS2"]["HandsHP"]
 					hand.Parent = MS --set MS as parent
 					hand:SetInvincible(false) --set that hand can be damaged
 					hand:GetSprite().Color.A = 0 --fade in anim start
@@ -63,8 +63,8 @@ function cba:MegaSatanMSsUpdate(MS)
 							--same actions as above--
 							
 							newhand.State = 3
-							newhand.MaxHitPoints = cfg["MS2"]["MSsHP"]
-							newhand.HitPoints = cfg["MS2"]["MSsHP"]
+							newhand.MaxHitPoints = cfg["MS2"]["HandsHP"]
+							newhand.HitPoints = cfg["MS2"]["HandsHP"]
 							newhand.Parent = MS
 							newhand:SetInvincible(false)
 							newhand:GetSprite().Color.A = 0
@@ -145,9 +145,9 @@ function cba:MegaSatanMSsUpdate(MS)
 			end
 		end
 			
-		-----------------------------------
-		------------MSs logic------------
-		-----------------------------------
+		------------------------------------
+		-----------MS hands logic-----------
+		------------------------------------
 		
 		if (MS.Variant == 1 or MS.Variant == 2) and data.MS_ishand then
 		
@@ -404,9 +404,3 @@ cba:AddCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, function(_, entity, dmg, dmgfla
 		return false
 	end
 end, EntityType.ENTITY_MEGA_SATAN_2)
-
---EBB Fix--
-if HPBars then
-	HPBars.BossDefinitions[EntityType.ENTITY_MEGA_SATAN_2..".1"] = {sprite = "gfx/cba/ui/EBB/mega_satan_2_righthand.png", barStyle = "Mega Satan Phase 2"}
-	HPBars.BossDefinitions[EntityType.ENTITY_MEGA_SATAN_2..".2"] = {sprite = "gfx/cba/ui/EBB/mega_satan_2_lefthand.png", barStyle = "Mega Satan Phase 2"}
-end

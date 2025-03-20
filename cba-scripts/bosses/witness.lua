@@ -2750,14 +2750,16 @@ function cba:WitnessBrimstone(Brim)
 		elseif Brim.Timeout <= 8 then
 			local wdata = cba.GetData(Brim.SpawnerEntity)
 			
-			wdata.WS_brimball = nil
-			wdata.WS_shootbrim_frames = nil
-			wdata.WS_shootbrim_angle = nil
-			
-			Brim.SpawnerEntity:ToNPC().State = 3
-			
-			if Brim.SpawnerEntity:GetSprite():GetAnimation() ~= "ShootEnd" then
-				Brim.SpawnerEntity:GetSprite():Play("ShootEnd", true)
+			if wdata.WS_brimball then
+				wdata.WS_brimball = nil
+				wdata.WS_shootbrim_frames = nil
+				wdata.WS_shootbrim_angle = nil
+				
+				Brim.SpawnerEntity:ToNPC().State = 3
+				
+				if Brim.SpawnerEntity:GetSprite():GetAnimation() == "ShootLoop" then
+					Brim.SpawnerEntity:GetSprite():Play("ShootEnd", true)
+				end
 			end
 		end
 		

@@ -7,6 +7,7 @@ local trw = TheRepentanceWitness --trw mod check
 
 require("cba-scripts.cfg")
 require("cba-scripts.utils")
+require("cba-scripts.compats")
 
 if not trw then --include witness module only without trw mod on
 	require("cba-scripts.bosses.witness")
