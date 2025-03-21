@@ -256,7 +256,7 @@ cba:AddCallback(ModCallbacks.MC_POST_NPC_INIT, function(_, npc)
 	) then --not in downpour, dross and flooded caves
 	
 		--new bubbles sprites--
-		npc:GetSprite():ReplaceSpritesheet(0, "gfx/monsters/repentance/806.000_bubbles_normal.png", true)
-		npc:GetSprite():ReplaceSpritesheet(1, "gfx/monsters/repentance/806.000_bubbles_normal.png", true)
+		npc:GetSprite():ReplaceSpritesheet(0, "gfx/cba/enemies/806.000_bubbles_normal.png", true)
+		npc:GetSprite():ReplaceSpritesheet(1, "gfx/cba/enemies/806.000_bubbles_normal.png", true)
 	end
 end, EntityType.ENTITY_BUBBLES)

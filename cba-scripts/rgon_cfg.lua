@@ -17,8 +17,8 @@ local function AddBoolSetting(setting, category, name, info)
 	ImGui.AddElement("CBASettings" .. tab .. "Tab", "", ImGuiElement.Separator)
 	ImGui.AddCheckbox("CBASettings" .. tab .. "Tab", id, "", nil, true)
 	ImGui.AddElement("CBASettings" .. tab .. "Tab", "", ImGuiElement.SameLine)
-	ImGui.AddElement("CBASettings" .. tab .. "Tab", "CBASettings" .. name .. "Text", ImGuiElement.TextWrapped, name)
-	ImGui.SetHelpmarker("CBASettings" .. name .. "Text", info)
+	ImGui.AddElement("CBASettings" .. tab .. "Tab", "CBASettings" .. setting .. "Text", ImGuiElement.TextWrapped, name)
+	ImGui.SetHelpmarker("CBASettings" .. setting .. "Text", info)
 	ImGui.AddCallback(id, ImGuiCallback.Render, function()
 		ImGui.UpdateData(id, ImGuiData.Value, cba.Save.Config[category][setting])
 	end)
@@ -36,8 +36,8 @@ local function AddNumSetting(setting, category, minv, maxv, name, info)
 	ImGui.AddElement("CBASettings" .. tab .. "Tab", "", ImGuiElement.Separator)
 	ImGui.AddSliderInteger("CBASettings" .. tab .. "Tab", id, "", nil, cba.Save.Config[category][setting], minv, maxv)
 	ImGui.AddElement("CBASettings" .. tab .. "Tab", "", ImGuiElement.SameLine)
-	ImGui.AddElement("CBASettings" .. tab .. "Tab", "CBASettings" .. name .. "Text", ImGuiElement.TextWrapped, name)
-	ImGui.SetHelpmarker("CBASettings" .. name .. "Text", info)
+	ImGui.AddElement("CBASettings" .. tab .. "Tab", "CBASettings" .. setting .. "Text", ImGuiElement.TextWrapped, name)
+	ImGui.SetHelpmarker("CBASettings" .. setting .. "Text", info)
 	ImGui.AddCallback(id, ImGuiCallback.Render, function()
 		ImGui.UpdateData(id, ImGuiData.Value, cba.Save.Config[category][setting])
 	end)
@@ -79,7 +79,45 @@ AddNumSetting("ArmSpawnChance", "Mom", 0, 100, "Arm Attack Chance (Summon)", "Ch
 ImGui.AddElement("CBASettingsGeneralTab", "", ImGuiElement.SeparatorText, "Mausoleum Mom's Heart")
 AddBoolSetting("HeartRestore", "General", "Mom's Heart Restore", "Re-adds ability to spawn enemies to Mausoleum Mom's Heart")
 ImGui.AddElement("CBASettingsGeneralTab", "", ImGuiElement.SeparatorText, "Witness(Mother)")
-AddBoolSetting("WitnessRestore", "General", "Witness Restore", "Completely changes Mother's behavior, transforming her to The Witness")
+
+ImGui.AddElement("CBASettingsGeneralTab", "", ImGuiElement.Separator)
+ImGui.AddCheckbox("CBASettingsGeneralTab", "CBASettingsWitnessRestore", "", nil, true)
+ImGui.AddElement("CBASettingsGeneralTab", "", ImGuiElement.SameLine)
+ImGui.AddElement("CBASettingsGeneralTab", "CBASettingsWitnessRestoreText", ImGuiElement.TextWrapped, "Witness Restore")
+ImGui.SetHelpmarker("CBASettingsWitnessRestoreText", "Completely changes Mother's behavior, transforming her to The Witness")
+ImGui.AddCallback("CBASettingsWitnessRestore", ImGuiCallback.Render, function()
+	ImGui.UpdateData("CBASettingsWitnessRestore", ImGuiData.Value, cba.Save.Config["General"]["WitnessRestore"])
+end)
+ImGui.AddCallback("CBASettingsWitnessRestore", ImGuiCallback.Edited, function(value)
+	 cba.Save.Config["General"]["WitnessRestore"] = value
+	 
+	 if cba.IsCorpseFloor() or cba.IsMortisFloor() then
+	 
+		if Game():GetLevel():GetCurrentRoomDesc() and Game():GetLevel():GetCurrentRoomDesc().GridIndex == -10 then
+			local idx = 84
+		
+			for i = 0, 168 do
+				local desc = Game():GetLevel():GetRoomByIdx(i, 0)
+				if desc and desc.Data and desc.Data.Type == RoomType.ROOM_BOSS then
+					idx = i
+					break
+				end
+			end
+			
+			Game():ChangeRoom(idx, 0)
+		end
+	
+		if cba.Save.Config["General"]["WitnessRestore"] and Game():GetLevel():GetRoomByIdx(-10, 0).Data then
+		
+			Game():GetLevel():GetRoomByIdx(-10, 0).Data = RoomConfigHolder.GetRoomByStageTypeAndVariant(StbType.CORPSE, RoomType.ROOM_BOSS, 912)
+		
+		elseif not cba.Save.Config["General"]["WitnessRestore"] and Game():GetLevel():GetRoomByIdx(-10, 0).Data then
+		
+			Game():GetLevel():GetRoomByIdx(-10, 0).Data = RoomConfigHolder.GetRoomByStageTypeAndVariant(StbType.CORPSE, RoomType.ROOM_BOSS, 1)
+		end
+	end
+end)
+
 ImGui.AddElement("CBASettingsGeneralTab", "", ImGuiElement.SeparatorText, "Mega Satan 2'nd Phase")
 AddBoolSetting("MegaSatanRestore", "General", "Mega Satan 2 Hands Restore", "Readds Mega Satan's hands in 2'nd phase and adds new attacks to them")
 AddNumSetting("AttackChance", "MS2", 0, 100, "Hand Attack Chance", "Chance of Mega Satan's hand to attack in 2'nd phase")

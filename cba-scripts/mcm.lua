@@ -117,7 +117,39 @@ AddNumSetting("ArmSpawnChance", "Mom", 0, 100, "Arm Attack Chance (Summon)", "Ch
 ModConfigMenu.AddText("CBA", "General", "Mausoleum Mom's Heart")
 AddBoolSetting("HeartRestore", "General", "Mom's Heart Restore", "Re-adds ability to spawn enemies to Mausoleum Mom's Heart")
 ModConfigMenu.AddText("CBA", "General", "Witness(Mother)")
-AddBoolSetting("WitnessRestore", "General", "Witness Restore", "Completely changes Mother's behavior, transforming her to The Witness")
+ModConfigMenu.AddSetting(
+	"CBA",
+	"General",
+	{
+		Type = ModConfigMenu.OptionType.BOOLEAN,
+		CurrentSetting = function()
+			return cba.Save.Config["General"]["WitnessRestore"]
+		end,
+		Display = function()
+			local onOff = "False"
+			if cba.Save.Config["General"]["WitnessRestore"] then
+				onOff = "True"
+			end
+			return "Witness Restore" .. ": " .. onOff
+		end,
+		OnChange = function(currentBool)
+			cba.Save.Config["General"]["WitnessRestore"] = currentBool
+			
+			if cba.IsCorpseFloor() or cba.IsMortisFloor() then
+			
+				if cba.Save.Config["General"]["WitnessRestore"] and Game():GetLevel():GetRoomByIdx(-10, 0).Data then
+				
+					Game():GetLevel():GetRoomByIdx(-10, 0).Data = RoomConfigHolder.GetRoomByStageTypeAndVariant(StbType.CORPSE, RoomType.ROOM_BOSS, 912)
+				
+				elseif not cba.Save.Config["General"]["WitnessRestore"] and Game():GetLevel():GetRoomByIdx(-10, 0).Data then
+				
+					Game():GetLevel():GetRoomByIdx(-10, 0).Data = RoomConfigHolder.GetRoomByStageTypeAndVariant(StbType.CORPSE, RoomType.ROOM_BOSS, 1)
+				end
+			end
+		end,
+		Info = "Completely changes Mother's behavior, transforming her to The Witness"
+	}
+)
 ModConfigMenu.AddText("CBA", "General", "Mega Satan 2'nd Phase")
 AddBoolSetting("MegaSatanRestore", "General", "Mega Satan 2 Hands Restore", "Readds Mega Satan's hands in 2'nd phase and adds new attacks to them")
 AddNumSetting("AttackChance", "MS2", 0, 100, "Hand Attack Chance", "Chance of Mega Satan's hand to attack in 2'nd phase")

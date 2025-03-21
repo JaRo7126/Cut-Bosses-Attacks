@@ -23,6 +23,21 @@ function cba:IsMortisFloor() --check for Mortis floor
 	and (StageAPI.GetCurrentStage().Name == "Mortis 2" or StageAPI.GetCurrentStage().Name == "Mortis XL")
 end
 
+function cba:IsCorpseFloor()
+	local stage = Game():GetLevel():GetStage()
+	local stype = Game():GetLevel():GetStageType()
+	local level = Game():GetLevel()
+	
+	if (
+		(stage == LevelStage.STAGE4_2 or 
+		(stage == LevelStage.STAGE4_1 and level:GetCurses() & LevelCurse.CURSE_OF_LABYRINTH ~= 0)
+	) and stype == StageType.STAGETYPE_REPENTANCE) then
+		return true
+	else
+		return false
+	end
+end
+
 
 cba:AddCallback(ModCallbacks.MC_POST_NEW_LEVEL, function() --change Mother room to Witness room
 	local stage = Game():GetLevel():GetStage()
@@ -30,14 +45,7 @@ cba:AddCallback(ModCallbacks.MC_POST_NEW_LEVEL, function() --change Mother room 
 	local level = Game():GetLevel()
 	
 	if cfg["General"]["WitnessRestore"] == true 
-	and (
-			(
-				(stage == LevelStage.STAGE4_2
-				or (stage == LevelStage.STAGE4_1 and level:GetCurses() & LevelCurse.CURSE_OF_LABYRINTH ~= 0)
-				) and stype == StageType.STAGETYPE_REPENTANCE
-			)
-			or cba.IsMortisFloor()
-		) 
+	and (cba.IsCorpseFloor() or cba.IsMortisFloor()) 
 	and level:GetRoomByIdx(-10, 0).Data then --Mother room's grid index is -10
 		level:GetRoomByIdx(-10, 0).Data = RoomConfigHolder.GetRoomByStageTypeAndVariant(StbType.CORPSE, RoomType.ROOM_BOSS, 912)
 	end
@@ -52,6 +60,13 @@ cba:AddCallback(ModCallbacks.MC_POST_RENDER, function() --camera focus
 			camera:SetFocusPosition(Game():GetRoom():GetCenterPos()) --focus in room center
 		else
 			camera:SetFocusPosition(Isaac.GetPlayer().Position) --follow player
+		end
+	elseif Game():GetRoom():GetType() == RoomType.ROOM_BOSS and Game():GetLevel():GetCurrentRoomDesc().Data.Variant == 1
+	and Game():GetLevel():GetCurrentRoomDesc().Data.StageID == StbType.CORPSE then
+		local camera = Game():GetRoom():GetCamera()
+		
+		if #Isaac.FindByType(EntityType.ENTITY_MOTHER, 0, 0) ~= 0 then
+			camera:SetFocusPosition(Vector(320, 295))
 		end
 	end
 end)
@@ -359,37 +374,133 @@ local RockEffectsPos = {116, 117, 144, 145, 172, 173, 174, 200, 201, 202, 203, 2
 cba.PitsPos = {29,30,31,32,33,34,35,36,37,38,45,46,47,48,49,50,51,52,53,54,57,58,59,60,61,62,77,78,79,80,81,82,85,86,109,110,113,138}
 
 
-function cba:WitnessMortisPitsFix() --spawn pits in Mortis
-	if cba.IsMortisFloor() 
-	and cba.IsWitnessBossRoom() then
+function cba:WitnessGridFix() 
+	if cba.IsWitnessBossRoom() then
 		local room = Game():GetRoom()
 		
 		if not room:IsClear() then
-			local pitSprite = mortisPits[math.random(2)]
 		
+			for i = 29, 239 do
+			
+				if i ~= 55
+				and i ~= 56
+				and i ~= 83
+				and i ~= 84
+				and i ~= 111
+				and i ~= 112
+				and i ~= 139
+				and i ~= 140
+				and i ~= 167
+				and i ~= 168
+				and i ~= 195
+				and i ~= 196
+				and i ~= 223
+				and i ~= 224 then
+					local grid = room:GetGridEntity(i)
+					
+					if grid and grid:GetType() == GridEntityType.GRID_WALL then
+						room:RemoveGridEntityImmediate(i, 0, false)
+					end
+				end
+			end
+		
+			local pitSprite = mortisPits[math.random(2)]
+			
 			for _, Idx in ipairs(cba.PitsPos) do
-				local pit = Isaac.GridSpawn(GridEntityType.GRID_PIT, 0, room:GetGridPosition(Idx), true)
-				pit:GetSprite():ReplaceSpritesheet(0, pitSprite, true)
+				local grid = room:GetGridEntity(Idx)
+				
+				if not grid then
+					local pit = Isaac.GridSpawn(GridEntityType.GRID_PIT, 0, room:GetGridPosition(Idx), true)
+					pit:PostInit()
+					
+					if cba.IsMortisFloor() then
+						pit:GetSprite():ReplaceSpritesheet(0, pitSprite, true)
+					end
+				end
 			end
 		else
+			if cba.IsMortisFloor() then
 		
-			for _, Idx in ipairs(cba.PitsPos) do
-				local pit = room:GetGridEntity(Idx):ToPit()
-				
-				if pit then
-				
-					pit:MakeBridge(pit)
+				for _, Idx in ipairs(cba.PitsPos) do
+					local pit = room:GetGridEntity(Idx):ToPit()
 					
-					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF01, 0, room:GetGridPosition(Idx), Vector(0,0), nil)
+					if pit then
 					
-					SFXManager():Play(SoundEffect.SOUND_ROCK_CRUMBLE)
+						pit:MakeBridge(pit)
+						
+						Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF01, 0, room:GetGridPosition(Idx), Vector(0,0), nil)
+						
+						SFXManager():Play(SoundEffect.SOUND_ROCK_CRUMBLE)
+					end
 				end
+			end
+		end
+	elseif Game():GetRoom():GetType() == RoomType.ROOM_BOSS and Game():GetLevel():GetCurrentRoomDesc().Data.Variant == 1
+	and Game():GetLevel():GetCurrentRoomDesc().Data.StageID == StbType.CORPSE then
+		local room = Game():GetRoom()
+		
+		for i = 0, Game():GetNumPlayers() - 1 do
+			Isaac.GetPlayer(i).Position = Vector(320, 380)
+		end
+	
+		for _, i in ipairs(cba.PitsPos) do
+			local grid = room:GetGridEntity(i)
+			
+			if grid and grid:GetType() == GridEntityType.GRID_PIT then
+				room:RemoveGridEntityImmediate(i, 0, false)
+				
+				if i == 29
+				or i == 30
+				or i == 45
+				or i == 59
+				or i == 109 then
+					Isaac.GridSpawn(GridEntityType.GRID_WALL, 0, room:GetGridPosition(i), true)
+				end
+			end
+		end
+		
+		for i = 31, 148 do
+			if i ~= 44
+			and i ~= 45
+			and i ~= 59
+			and i ~= 60
+			and i ~= 74
+			and i ~= 75
+			and i ~= 89
+			and i ~= 90
+			and i ~= 104
+			and i ~= 105
+			and i ~= 119
+			and i ~= 120
+			and i ~= 134
+			and i ~= 135 then
+				local grid = room:GetGridEntity(i)
+				
+				if grid and grid:GetType() == GridEntityType.GRID_WALL then
+					room:RemoveGridEntityImmediate(i, 0, false)
+				end
+				
+			elseif i == 90
+			or i == 134 then
+					local grid = room:GetGridEntity(i)
+				
+				if not grid then
+					Isaac.GridSpawn(GridEntityType.GRID_WALL, 0, room:GetGridPosition(i), true):PostInit()
+				end
+			end
+		end
+		
+		for i = 149, 223 do
+			local grid = room:GetGridEntity(i)
+			
+			if not grid then
+				Isaac.GridSpawn(GridEntityType.GRID_WALL, 0, room:GetGridPosition(i), true):PostInit()
 			end
 		end
 	end
 end
 
-cba:AddCallback(ModCallbacks.MC_POST_NEW_ROOM, cba.WitnessMortisPitsFix)
+cba:AddCallback(ModCallbacks.MC_POST_NEW_ROOM, cba.WitnessGridFix)
 
 cba:AddCallback(ModCallbacks.MC_PRE_SPAWN_CLEAN_AWARD, function()
 	if cba.IsWitnessBossRoom() then
@@ -506,8 +617,7 @@ function cba:NPCInit(NPC)
 				
 				--spawn small rocks(yep, again)
 				for _, pos3 in ipairs(RockEffectsPos) do
-					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, 0, 
-					room:GetGridPosition(pos3), Vector(0, 0), nil)
+					Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.ROCK_PARTICLE, 0, room:GetGridPosition(pos3), Vector(0, 0), nil):ToEffect().m_Height = 10
 				end
 				
 			--Burst Cluster Init--
@@ -2215,7 +2325,7 @@ function cba:WitnessProjUpdate(Proj)
 	
 	--SUCC projs init--
 	
-	elseif cfg.Witness["SUCC"] == true and not data.WS_mod_proj
+	elseif cba.IsWitnessBossRoom() and cfg.Witness["SUCC"] == true and not data.WS_mod_proj
 	and (CheckColor(Proj.Color, "GreenBall", "n")
 			or (cba.IsMortisFloor() and Proj:GetData().MortisMotherColored and CheckColor(Proj.Color, "GreenBall", "m"))
 		) then 
