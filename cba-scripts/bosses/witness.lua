@@ -15,20 +15,6 @@ function cba:IsWitnessBossRoom() --check for Witness room
 	and rvar == 912
 end
 
---tbh idk why i made this funcs for phases
-local function IsWitnessFirstPhase() --is Witness in 1'st phase
-
-	return cba.IsWitnessBossRoom() 
-	and #Isaac.FindByType(EntityType.ENTITY_MOTHER, 0, 0) ~= 0
-end
-
-local function IsWitnessSecondPhase() --is Witness in 1'st phase
-
-	return cba.IsWitnessBossRoom() 
-	and #Isaac.FindByType(EntityType.ENTITY_MOTHER, 10, 0) ~= 0
-end
-
-
 function cba:IsMortisFloor() --check for Mortis floor
 	return cfg["General"]["WitnessRestore"] == true 
 	and LastJudgement 
