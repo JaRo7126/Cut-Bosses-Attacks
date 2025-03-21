@@ -132,6 +132,7 @@ AddBoolSetting("ChargeSpeedScale", "Witness", "Charge Speed Scale", "If true, Wi
 ImGui.AddElement("CBASettingsWitnessTab", "", ImGuiElement.TextWrapped, "Brimstone Attack")
 AddBoolSetting("BrimstoneAttack", "Witness", "Brimstone Attack", "If true, then Witness will do Brimstone Attack from Antibirth instead of 'Suck in' Attack")
 AddNumSetting("BrimAttackChance", "Witness", 0, 100, "Brimstone Attack Chance", "Chance of Brimstone Attack to replace the 'Suck in' Attack")
+AddBoolSetting("OldBrimBallGfx", "Witness", "Old GFX", "Restores old Brimstone Ball GFX from Antibirth")
 ImGui.AddElement("CBASettingsWitnessTab", "", ImGuiElement.SeparatorText, "EXTRA")
 ImGui.AddElement("CBASettingsWitnessTab", "", ImGuiElement.TextWrapped, "Camera")
 AddBoolSetting("ZoomOut", "Witness", "Zoom Out", "You can disable zooming out in Witness boss room if you want or if you are a masochist")

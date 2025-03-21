@@ -21,7 +21,8 @@ function cba:MomArmAttack(Mom)
 			
 			if chance <= cfg["Mom"]["ArmSpawnChance"] then
 			
-				Mom.State = 9 --set needed state
+				Mom.State = 8 --set needed state
+				data.MM_arm_attack = true
 				Mom:GetSprite():Play("ArmOpen", true) --play anim
 			end
 			
@@ -32,41 +33,42 @@ function cba:MomArmAttack(Mom)
 			
 			if chance <= cfg["Mom"]["ArmEyeChance"] then
 			
-				Mom.State = 9 --same actions
+				Mom.State = 8 --same actions
+				data.MM_arm_attack = true
 				Mom:GetSprite():Play("ArmOpen", true)
 			end
 			
 			data.chance_calc = true
 			
-		elseif Mom.State == 8 and Mom:GetSprite():GetFrame() == 25 then --on eye looking anim
+		elseif Mom.State == 8 then 
+			if not data.MM_arm_attack and Mom:GetSprite():GetFrame() == 25 then --on eye looking anim
 		
-			Mom.State = 9 --same actions
-			Mom:GetSprite():Play("ArmOpen", true)
+				Mom:GetSprite():Play("ArmOpen", true)
+				data.MM_arm_attack = true
 			
-		elseif Mom.State == 9 then --on hand attack
+			elseif data.MM_arm_attack then --on hand attack
 		
-			if data.chance_calc then --reset values
-				data.chance_calc = nil
-			end
-			
-			if Mom:GetSprite():GetFrame() == 10 then
-				local dir = directions[Game():GetRoom():GetGridIndex(Mom.Position)]
+				if data.chance_calc then --reset values
+					data.chance_calc = nil
+				end
 				
-				for i = -2, 2 do --spawn a few bouncy projs
-				
-					local velocity = (dir * 10):Rotated(20 * i)
+				if Mom:GetSprite():GetFrame() == 10 then
+					local dir = directions[Game():GetRoom():GetGridIndex(Mom.Position)]
 					
-					local proj = Isaac.Spawn(EntityType.ENTITY_PROJECTILE, 0, 0, Mom.Position + dir * 80, velocity, Mom):ToProjectile()
-					proj:AddProjectileFlags(ProjectileFlags.BOUNCE)
+					for i = -2, 2 do --spawn a few bouncy projs
 					
-					proj.Height = -30
-					proj.Scale = 1.5
+						local velocity = (dir * 10):Rotated(20 * i)
+						
+						local proj = Isaac.Spawn(EntityType.ENTITY_PROJECTILE, 0, 0, Mom.Position + dir * 80, velocity, Mom):ToProjectile()
+						proj:AddProjectileFlags(ProjectileFlags.BOUNCE)
+						
+						proj.Height = -30
+						proj.Scale = 1.5
+					end
 				end
 			end
-			
-		elseif Mom.State == 3 and data.chance_calc then --on Idle
-			data.chance_calc = nil --reset values
-			
+		elseif Mom.State == 3 and data.MM_arm_attack then
+			data.MM_arm_attack = nil
 		end
 	end
 end

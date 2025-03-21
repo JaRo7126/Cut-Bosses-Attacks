@@ -2423,8 +2423,12 @@ function cba:WitnessProjDeath(Proj)
 			
 			local ball = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BRIMSTONE_BALL, 0, Proj.Position, Vector(0, 0), Proj.SpawnerEntity):ToEffect()
 			
-			ball:GetSprite():Load("gfx/cba/bosses/witness/witness_brimstone_ball.anm2", true)
-			ball:GetSprite():Play("Idle", true)
+			if cfg.Witness["OldBrimBallGfx"] then
+				ball:GetSprite():Load("gfx/cba/bosses/witness/witness_brimstone_ball.anm2", true)
+				ball:GetSprite():Play("Idle", true)
+			else
+				ball:GetSprite().Color.A = 1.2
+			end
 			
 			cba.GetData(ball).WS_brimeffect = true
 			
