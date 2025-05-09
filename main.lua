@@ -1,5 +1,5 @@
 --If someone seing this PLEASE NOTE that my code isn't ideal
---So, if you've found a better way to do smth in my code, write about it in Commisions discussion
+--So if you've found a better way to do smth in my code, write me about it
 
 CutBossesAttacks = RegisterMod("Cut Bosses Attacks", 1)
 local cba = CutBossesAttacks
@@ -19,7 +19,10 @@ require("cba-scripts.bosses.reap_creep")
 require("cba-scripts.bosses.mom")
 require("cba-scripts.bosses.dogma")
 require("cba-scripts.bosses.mega_satan2")
-require("cba-scripts.bosses.skinless_hush") --!HEAVILY WIP!
+--!HEAVILY WIP!--
+require("cba-scripts.skinless_womb")
+require("cba-scripts.bosses.skinless_hush")
+--.............--
 
 if ModConfigMenu then
 	require("cba-scripts.mcm")

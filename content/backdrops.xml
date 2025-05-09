@@ -1,12 +1,12 @@
-<backdrops gfxroot="gfx/backdrop/" gridgfxroot="gfx/grid/" effectsgfxroot="gfx/effects/">
+<backdrops gfxroot="gfx/cba/backdrop/" gridgfxroot="gfx/cba/grid/" effectsgfxroot="gfx/effects/">
     <backdrop name="SkinlessWombCBA" reftype="12" gfx="SkinlessWomb.png" walls="1" wallvariants="3" floors="1" floorvariants="3"
-        watergfx	= "water_blood.png"
+        watergfx	= "water_blood_corpse.png"
 		lfloorgfx   = "SkinlessWomb_LFloor.png"
         nfloorgfx   = "SkinlessWomb_Nfloor.png"
-        props       = "Props_SkinlessWomb.anm2"
-        rocks       = "rocks_SkinlessWomb.png"
-        pit         = "SkinlessWomb_pit.png"
-        bridge      = "SkinlessWomb_bridge.png"
+        props       = "Props_07_utero.anm2"
+        rocks       = "rocks_utero.png"
+        pit         = "grid_pit_utero.png"
+        bridge      = "grid_bridge_utero.png"
         door        = "door_momsheart.png"
         holeinwall  = "door_08_holeinwall_utero.png"
     />
