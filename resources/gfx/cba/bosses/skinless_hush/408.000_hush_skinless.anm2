@@ -1,5 +1,5 @@
 <AnimatedActor>
-	<Info CreatedBy="Unknown" CreatedOn="10.05.2025 12:30:02" Version="8" Fps="30"/>
+	<Info CreatedBy="Unknown" CreatedOn="10.05.2025 19:16:03" Version="9" Fps="30"/>
 	<Content>
 		<Spritesheets>
 			<Spritesheet Path="boss_hush_skinless.png" Id="0"/>

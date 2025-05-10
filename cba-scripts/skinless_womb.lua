@@ -270,7 +270,8 @@ function cba:SWCurse(id, _, player)
 	if id == CollectibleType.COLLECTIBLE_RED_KEY
 	and cba.IsSkinlessWombRoom() then
 		player:AnimateSad()
-		SFXManager():Play(SoundEffect.SOUND_SATAN_GROW)
+		SFXManager():Play(SoundEffect.SOUND_DEATH_CARD)
+		SFXManager():Play(SoundEffect.SOUND_BEAST_SPIT)
 		return true
 	end
 end
