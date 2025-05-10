@@ -1,5 +1,6 @@
---If someone seing this PLEASE NOTE that my code isn't ideal
---So if you've found a better way to do smth in my code, write me about it
+--If someone seing this PLEASE NOTE that my code isn't ideal and probably is ABSOLUTE TRASH
+--It's because I've learned Isaac modding through docs and actual in-game testing, not by guides or mods' code
+--So If you want to tell me how to make my trash code better, feel free to write about it on github with enhancement tag
 
 CutBossesAttacks = RegisterMod("Cut Bosses Attacks", 1)
 local cba = CutBossesAttacks

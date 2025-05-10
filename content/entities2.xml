@@ -1,5 +1,5 @@
 <entities anm2root="gfx/cba/" version="5">
-    <entity anm2path="bosses/witness/witness_tear.anm2" baseHP="100" boss="0" champion="0" collisionDamage="1" collisionMass="100" collisionRadius="13" friction="0" name="Witness Burst Tear(?)" numGridCollisionPoints="12" shadowSize="0" stageHP="0" id="912" variant="9" subtype="0" >
+    <entity anm2path="bosses/witness/witness_tear.anm2" baseHP="100" boss="0" champion="0" collisionDamage="1" collisionMass="100" collisionRadius="13" friction="0" name="CBA Blood Cluster" numGridCollisionPoints="12" shadowSize="0" stageHP="0" id="912" variant="9" subtype="0" >
         <gibs amount="0" blood="1" bone="0" eye="0" gut="0" large="0" />
     </entity>
 </entities>
