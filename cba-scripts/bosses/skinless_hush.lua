@@ -15,42 +15,46 @@ end
 function cba:SHInit(SH)
 	SH:GetSprite():Load("gfx/cba/bosses/skinless_hush/408.000_hush_skinless.anm2", true)
 	SH:GetSprite():Play("Appear", true)
-	SH.Visible = false
-	--SH.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 	SH.MaxHitPoints = 6666
 	SH.HitPoints = 6666
 	SH:SetShieldStrength(100)
 	cba.GetData(SH).SH_frames_without_attack = 0
-	cba.GetData(SH).SH_frames_attacking = 0
 end
 
 
 cba:AddCallback(ModCallbacks.MC_POST_NPC_INIT, cba.SHInit, EntityType.ENTITY_HUSH_SKINLESS)
 
 
-function cba:SHUpdate(SH)
-
-	if SH.Type ~= EntityType.ENTITY_HUSH_SKINLESS then
-		return 
-	end
-	
+function cba:SHRender(SH)
 	local data = cba.GetData(SH)
-	local target = SH:GetPlayerTarget()
 	local state = SH.State
 	local sprite = SH:GetSprite()
 	local anim = sprite:GetAnimation()
 	local frame = sprite:GetFrame()
-	local healthPercent = SH.HitPoints / SH.MaxHitPoints
 	
-	if not PlayerManager.IsCoopPlay() then
-		Game():GetRoom():GetCamera():SetFocusPosition(SH.Position + (target.Position - SH.Position) / 2)
-	end
+
+	if anim == "Appear" then
 	
-	if state == NpcState.STATE_INIT and anim == "Appear" then
+		Game():GetRoom():GetCamera():SetFocusPosition(SH.Position)
+	
+		if sprite:IsFinished() then
+			SH.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
+			SH.State = NpcState.STATE_IDLE
+			sprite:Play("Idle")
+			data.SH_lastinit_frame = nil
+			return
+		end
+		
+		if data.SH_lastinit_frame and data.SH_lastinit_frame == frame then
+			return
+		end
+		
+		data.SH_lastinit_frame = frame
 	
 		if frame < 150 then
 		
 			if SH.Visible ~= false then
+				SH.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 				SH.Visible = false
 			end
 			
@@ -84,17 +88,31 @@ function cba:SHUpdate(SH)
 					local effect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BIG_ATTRACT, 10 + i, SH.Position, Vector(0, 0), SH):ToEffect()
 					
 					effect:SetTimeout(10)
-					effect:GetSprite().Color = Color(1, 0, 0, 1)
 				end
 			
 			end
-	
-		elseif sprite:IsFinished() then
-			SH.State = NpcState.STATE_IDLE
-			sprite:Play("Idle")
 		end
-		
-	elseif state == NpcState.STATE_IDLE then
+	end
+end
+
+
+cba:AddCallback(ModCallbacks.MC_POST_NPC_RENDER, cba.SHRender, EntityType.ENTITY_HUSH_SKINLESS)
+
+
+function cba:SHUpdate(SH)
+	local data = cba.GetData(SH)
+	local target = SH:GetPlayerTarget()
+	local state = SH.State
+	local sprite = SH:GetSprite()
+	local anim = sprite:GetAnimation()
+	local frame = sprite:GetFrame()
+	local healthPercent = SH.HitPoints / SH.MaxHitPoints
+	
+	if not PlayerManager.IsCoopPlay() then
+		Game():GetRoom():GetCamera():SetFocusPosition(SH.Position + (target.Position - SH.Position) / 2)
+	end
+	
+	if state == NpcState.STATE_IDLE then
 		data.SH_frames_without_attack = data.SH_frames_without_attack + 1
 		SH.Velocity = Vector(0, 0)
 		
@@ -175,6 +193,7 @@ function cba:SHUpdate(SH)
 					data.SH_charge_wallhit = nil
 					data.SH_charge_vel = Vector(0, 0)
 					SH.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_GROUND
+					SH.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 				end
 				
 			elseif data.SH_charge_wait then
@@ -182,6 +201,7 @@ function cba:SHUpdate(SH)
 				
 				if data.SH_charge_wait == 0 then
 					SH.Visible = true
+					SH.EntityCollisionClass = EntityCollisionClass.ENTCOLL_ALL
 					
 					if data.SH_charge_count < 5 then
 						data.SH_charge_vel = (target.Position - SH.Position):Normalized() * 25
@@ -203,7 +223,7 @@ function cba:SHUpdate(SH)
 end
 
 
-cba:AddCallback(ModCallbacks.MC_NPC_UPDATE, cba.SHUpdate)
+cba:AddCallback(ModCallbacks.MC_NPC_UPDATE, cba.SHUpdate, EntityType.ENTITY_HUSH_SKINLESS)
 
 
 function cba:SHLaserUpdate(laser)
