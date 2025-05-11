@@ -16,6 +16,7 @@ function cba:SHInit(SH)
 	SH:GetSprite():Load("gfx/cba/bosses/skinless_hush/408.000_hush_skinless.anm2", true)
 	SH:GetSprite():Play("Appear", true)
 	SH.Visible = false
+	--SH.EntityCollisionClass = EntityCollisionClass.ENTCOLL_NONE
 	SH.MaxHitPoints = 6666
 	SH.HitPoints = 6666
 	SH:SetShieldStrength(100)
@@ -40,6 +41,10 @@ function cba:SHUpdate(SH)
 	local anim = sprite:GetAnimation()
 	local frame = sprite:GetFrame()
 	local healthPercent = SH.HitPoints / SH.MaxHitPoints
+	
+	if not PlayerManager.IsCoopPlay() then
+		Game():GetRoom():GetCamera():SetFocusPosition(SH.Position + (target.Position - SH.Position) / 2)
+	end
 	
 	if state == NpcState.STATE_INIT and anim == "Appear" then
 	
@@ -91,15 +96,17 @@ function cba:SHUpdate(SH)
 		
 	elseif state == NpcState.STATE_IDLE then
 		data.SH_frames_without_attack = data.SH_frames_without_attack + 1
+		SH.Velocity = Vector(0, 0)
 		
 		if data.SH_frames_without_attack >= math.floor(60 + 440 * healthPercent) then
 		
-			SH.State = NpcState.STATE_ATTACK --math.random(NpcState.STATE_ATTACK, NpcState.STATE_ATTACK4)
+			SH.State = NpcState.STATE_ATTACK2 --math.random(NpcState.STATE_ATTACK, NpcState.STATE_ATTACK4)
 			
 			data.SH_frames_without_attack = 0
 		end
 		
 	elseif state == NpcState.STATE_ATTACK then
+		SH.Velocity = Vector(0, 0)
 	
 		if anim == "Idle" then
 			sprite:Play("AttackStart", true)
@@ -123,6 +130,72 @@ function cba:SHUpdate(SH)
 			
 		elseif anim == "AttackEnd" and sprite:IsFinished() then
 		
+			SH.State = NpcState.STATE_IDLE
+			sprite:Play("Idle")
+		end
+		
+	elseif state == NpcState.STATE_ATTACK2 then
+	
+		if anim == "Idle" then
+			data.SH_charge_vel = (target.Position - SH.Position):Normalized() * 25
+			data.SH_charge_count = 0
+			sprite:Play("AttackStart", true)
+			
+		elseif anim == "AttackStart" and sprite:IsFinished() then
+			sprite:Play("AttackLoop", true)
+		
+		elseif anim == "AttackLoop" then
+			SH.Velocity = data.SH_charge_vel
+			
+			if data.SH_charge_wallhit then
+				local room = Game():GetRoom()
+			
+				if SH.GridCollisionClass ~= EntityGridCollisionClass.GRIDCOLL_NONE then
+					SH.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_NONE
+				end
+				
+				if room:GetGridIndex(SH.Position) == -1 then
+					
+					if data.SH_charge_count < 4 then
+						local positions = {
+						Vector(60, math.random(120, room:GetBottomRightPos().Y - 80)),
+						Vector(room:GetBottomRightPos().X - 60, math.random(120, room:GetBottomRightPos().Y - 80)),
+						Vector(math.random(120, room:GetBottomRightPos().X - 80), 60),
+						Vector(math.random(120, room:GetBottomRightPos().X - 80), room:GetBottomRightPos().Y - 60),
+						}
+						
+						SH.Position = positions[math.random(4)]
+					else
+						SH.Position = room:GetCenterPos()
+					end
+					
+					SH.Visible = false
+					data.SH_charge_wait = 60
+					data.SH_charge_count = data.SH_charge_count + 1
+					data.SH_charge_wallhit = nil
+					data.SH_charge_vel = Vector(0, 0)
+					SH.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_GROUND
+				end
+				
+			elseif data.SH_charge_wait then
+				data.SH_charge_wait = data.SH_charge_wait - 1
+				
+				if data.SH_charge_wait == 0 then
+					SH.Visible = true
+					
+					if data.SH_charge_count < 5 then
+						data.SH_charge_vel = (target.Position - SH.Position):Normalized() * 25
+						SH.Velocity = data.SH_charge_vel
+					else
+						data.SH_charge_count = nil
+						sprite:Play("AttackEnd", true)
+					end
+						
+					data.SH_charge_wait = nil
+				end
+			end
+			
+		elseif anim == "AttackEnd" and sprite:IsFinished() then
 			SH.State = NpcState.STATE_IDLE
 			sprite:Play("Idle")
 		end
@@ -170,3 +243,38 @@ end
 
 
 cba:AddCallback(ModCallbacks.MC_POST_LASER_UPDATE, cba.SHLaserUpdate)
+
+
+function cba:SHWallHit(SH, Idx, Wall)
+	local data = cba.GetData(SH)
+	
+	if Wall 
+	and Wall:GetType() == GridEntityType.GRID_WALL 
+	and SH.State == NpcState.STATE_ATTACK2
+	and not data.SH_charge_wallhit then
+		local room = Game():GetRoom()
+	
+		local wall_angle = cba.GetAngle(room:GetGridPosition(Idx) - SH.Position)
+		local vel_angle = cba.GetAngle(data.SH_charge_vel)
+		
+		if vel_angle < 45 or vel_angle > 315 then
+			
+			if wall_angle >= vel_angle - 45 
+			or wall_angle <= vel_angle + 45 then
+				
+				data.SH_charge_wallhit = true
+				Game():ShakeScreen(10)
+			end
+		else
+			if wall_angle >= vel_angle - 45 
+			and wall_angle <= vel_angle + 45 then
+			
+				data.SH_charge_wallhit = true
+				Game():ShakeScreen(10)
+			end
+		end
+	end
+end
+
+
+cba:AddCallback(ModCallbacks.MC_PRE_NPC_GRID_COLLISION, cba.SHWallHit, EntityType.ENTITY_HUSH_SKINLESS)
