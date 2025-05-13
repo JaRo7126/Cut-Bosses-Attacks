@@ -20,10 +20,10 @@ require("cba-scripts.bosses.reap_creep")
 require("cba-scripts.bosses.mom")
 require("cba-scripts.bosses.dogma")
 require("cba-scripts.bosses.mega_satan2")
---[[!HEAVILY WIP!--
+--!HEAVILY WIP!--
 require("cba-scripts.skinless_womb")
 require("cba-scripts.bosses.skinless_hush")
---.............--]]
+--.............--
 
 if ModConfigMenu then
 	require("cba-scripts.mcm")
