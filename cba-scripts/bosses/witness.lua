@@ -404,7 +404,7 @@ function cba:WitnessGridFix()
 				end
 			end
 		
-			local pitSprite = mortisPits[math.random(2)]
+			local pitSprite = LastJudgement and mortisPits[math.random(2)] 
 			
 			for _, Idx in ipairs(cba.PitsPos) do
 				local grid = room:GetGridEntity(Idx)
@@ -507,11 +507,11 @@ cba:AddCallback(ModCallbacks.MC_PRE_SPAWN_CLEAN_AWARD, function()
 		local room = Game():GetRoom()
 		
 		for _, Idx in ipairs(cba.PitsPos) do
-			local pit = room:GetGridEntity(Idx):ToPit()
+			local pit = room:GetGridEntity(Idx)
 			
-			if pit then
+			if pit and pit:ToPit() then
 			
-				pit:MakeBridge(pit)
+				pit:ToPit():MakeBridge(pit)
 				
 				Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.POOF01, 0, room:GetGridPosition(Idx), Vector(0,0), nil)
 				
@@ -690,7 +690,6 @@ end
 function cba:WitnessUpdate(Witness) --big ass func for witness behavior
 	if cba.IsWitnessBossRoom() then
 		local data = cba.GetData(Witness)
-		local player = Witness:GetPlayerTarget()
 		local sprite = Witness:GetSprite()
 		local anim = Witness:GetSprite():GetAnimation()
 		local frame = Witness:GetSprite():GetFrame()
@@ -752,7 +751,7 @@ function cba:WitnessUpdate(Witness) --big ass func for witness behavior
 			and (anim == "WristAttackLeft" or anim == "WristAttackRight")
 			and frame == 47 then --spawn chargers/corpse eaters
 			
-				local playerAngle = (player().Position - Witness.Position):Normalized()
+				local playerAngle = (Isaac.GetPlayer().Position - Witness.Position):Normalized()
 				local pos = anim == "WristAttackLeft" and Vector(380, 250) or Vector(730, 250)
 				local sprite = cba.IsMortisFloor() and worm.Spritesheet.mortis or worm.Spritesheet.normal
 				
@@ -1008,10 +1007,13 @@ function cba:WitnessUpdate(Witness) --big ass func for witness behavior
 						Ball:Remove()
 					end
 					
-					local dir = (player().Position - Witness.Position):Normalized()
-					local veldir = (player().Position - Witness.Position):Length() / 40
-					local colorTable = {n = {colors["GreenBall"].Normal[1], colors["GreenBall"].Normal[2], ColorColorize(Color(1, 1, 1, 1), {3.5, 2.5, 1, 1})},
-					m = {LastJudgement.Colors.OrganBlue, LastJudgement.Colors.OrganYellow, LastJudgement.Colors.OrganPurple}}
+					local dir = (Isaac.GetPlayer().Position - Witness.Position):Normalized()
+					local veldir = (Isaac.GetPlayer().Position - Witness.Position):Length() / 40
+					local colorTable = {colors["GreenBall"].Normal[1], colors["GreenBall"].Normal[2], ColorColorize(Color(1, 1, 1, 1), {3.5, 2.5, 1, 1})}
+					
+					if cba.IsMortisFloor() then
+						colorTable = {LastJudgement.Colors.OrganBlue, LastJudgement.Colors.OrganYellow, LastJudgement.Colors.OrganPurple}
+					end
 					
 					tearCount = math.random(30, 35)
 					
@@ -1030,12 +1032,11 @@ function cba:WitnessUpdate(Witness) --big ass func for witness behavior
 						cba.GetData(tear).WS_mod_proj = true
 						
 						if var ~= ProjectileVariant.PROJECTILE_BONE then
+							
+							tear:GetSprite().Color = colorTable[math.random(1, 3)]
 						
 							if cba.IsMortisFloor() then
 								tear:GetData().MortisMotherColored = true
-								tear:GetSprite().Color = colorTable.m[math.random(1, 3)]
-							else
-								tear:GetSprite().Color = colorTable.n[math.random(1, 3)]
 							end
 						end
 						
@@ -1091,7 +1092,7 @@ function cba:WitnessUpdate(Witness) --big ass func for witness behavior
 					local pos = data.WS_ball.Position
 					cba.GetData(data.WS_ball).WS_ball_projcount = cba.GetData(data.WS_ball).WS_ball_projcount + 4
 
-					local directionToPlayer = (player().Position - Witness.Position):Normalized()
+					local directionToPlayer = (Isaac.GetPlayer().Position - Witness.Position):Normalized()
 					local speed = 15
 					
 					for i = 0, 4 do
@@ -1284,7 +1285,7 @@ function cba:WitnessUpdate(Witness) --big ass func for witness behavior
 						SFXManager():Stop(sound)
 					end
 					
-					local directionToPlayer = (player().Position - Witness.Position):Normalized()
+					local directionToPlayer = (Isaac.GetPlayer().Position - Witness.Position):Normalized()
 					local speed = 10
 					
 					data.WS_shoot_parentproj_vel = {}
@@ -1393,7 +1394,7 @@ function cba:WitnessUpdate(Witness) --big ass func for witness behavior
 				Witness:Kill()
 			else
 			
-				Witness.Velocity = (player().Position - Witness.Position):Normalized() * 4
+				Witness.Velocity = (Isaac.GetPlayer().Position - Witness.Position):Normalized() * 4
 			end
 			
 			
@@ -1559,10 +1560,10 @@ function cba:WitnessUpdate(Witness) --big ass func for witness behavior
 				if data.WS_ball_dir == "toplayer" then
 				
 					local bdirection = GetAngle(velocity)
-					local angle = GetAngle((player().Position - Witness.Position):Normalized())
+					local angle = GetAngle((Isaac.GetPlayer().Position - Witness.Position):Normalized())
 					
 					if cfg.Witness["BallSpeedScale"] == true then
-						rotate = 3 * player().MoveSpeed 
+						rotate = 3 * Isaac.GetPlayer().MoveSpeed 
 					else 
 						rotate = 4 
 					end
@@ -1746,7 +1747,7 @@ function cba:WitnessUpdate(Witness) --big ass func for witness behavior
 				tear.Height = -15
 				
 				if frame == 5 then
-					local velocity = (player().Position - Witness.Position):Normalized() * 15
+					local velocity = (Isaac.GetPlayer().Position - Witness.Position):Normalized() * 15
 					
 					local wormTear = Isaac.Spawn(EntityType.ENTITY_PROJECTILE, 0, 0, Witness.Position, velocity, Witness):ToProjectile()
 					
@@ -1786,10 +1787,10 @@ function cba:WitnessUpdate(Witness) --big ass func for witness behavior
 							
 							local speed = 45
 							if cfg.Witness["ChargeSpeedScale"] == true then
-								speed = (30 * player().MoveSpeed)
+								speed = (30 * Isaac.GetPlayer().MoveSpeed)
 							end
 							
-							local velocity = (player().Position - Witness.Position):Normalized()
+							local velocity = (Isaac.GetPlayer().Position - Witness.Position):Normalized()
 							data.WS_charge_vel = velocity * speed
 							
 							local dir = GetAngle(velocity)
@@ -1810,10 +1811,10 @@ function cba:WitnessUpdate(Witness) --big ass func for witness behavior
 						
 						local speed = 45
 						if cfg.Witness["ChargeSpeedScale"] == true then
-							speed = (30 * player().MoveSpeed)
+							speed = (30 * Isaac.GetPlayer().MoveSpeed)
 						end
 						
-						local velocity = (player().Position - Witness.Position):Normalized()
+						local velocity = (Isaac.GetPlayer().Position - Witness.Position):Normalized()
 						data.WS_charge_vel = velocity * speed
 						
 						local dir = GetAngle(velocity)
@@ -1893,10 +1894,10 @@ function cba:WitnessUpdate(Witness) --big ass func for witness behavior
 							
 							local speed = 45
 							if cfg.Witness["ChargeSpeedScale"] == true then
-								speed = (30 * player().MoveSpeed)
+								speed = (30 * Isaac.GetPlayer().MoveSpeed)
 							end
 							
-							local velocity = (player().Position - Witness.Position):Normalized()
+							local velocity = (Isaac.GetPlayer().Position - Witness.Position):Normalized()
 							data.WS_charge_vel = velocity * speed
 							
 							local dir = GetAngle(velocity)
@@ -1933,7 +1934,7 @@ function cba:WitnessUpdate(Witness) --big ass func for witness behavior
 						data.WS_shootbrim_angle = 0
 						Witness:ToNPC().State = 11
 						
-						local dir = GetAngle((player().Position - Witness.Position):Normalized())
+						local dir = GetAngle((Isaac.GetPlayer().Position - Witness.Position):Normalized())
 						if (dir > 45 and dir <= 135) or (dir > 225 and dir <= 315) then
 							sprite:Play("ShootBegin", true)
 						elseif dir > 135 and dir <= 225 then
@@ -1960,7 +1961,7 @@ function cba:WitnessUpdate(Witness) --big ass func for witness behavior
 						end
 						
 						if frame == 14 then
-							local velocity = (player().Position - Witness.Position):Normalized() * 15
+							local velocity = (Isaac.GetPlayer().Position - Witness.Position):Normalized() * 15
 							
 							local BrimTear = Isaac.Spawn(EntityType.ENTITY_PROJECTILE, 0, 0, Witness.Position, velocity, Witness):ToProjectile()
 							
@@ -1998,7 +1999,7 @@ function cba:WitnessUpdate(Witness) --big ass func for witness behavior
 					end
 					
 				elseif data.WS_brimball then
-					Witness.Velocity = (player().Position - Witness.Position):Normalized()
+					Witness.Velocity = (Isaac.GetPlayer().Position - Witness.Position):Normalized()
 					
 					if anim == "ShootBegin" then
 					
